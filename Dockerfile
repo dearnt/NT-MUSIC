@@ -1,7 +1,7 @@
 FROM golang:1.24-bookworm
 
 RUN apt-get update && \
-    apt-get install -y --no-install-recommends ffmpeg python3 python3-venv ca-certificates curl nodejs npm && \
+    apt-get install -y --no-install-recommends ffmpeg python3 python3-venv ca-certificates curl unzip nodejs npm && \
     rm -rf /var/lib/apt/lists/*
 
 RUN curl -fsSL https://deno.land/install.sh | sh -s -- -y && \
