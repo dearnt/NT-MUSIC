@@ -1,0 +1,8 @@
+nt-music
+server/nt-music-server
+server/server
+client/nt-music-client
+*.tmp
+*.log
+.env
+.env.*

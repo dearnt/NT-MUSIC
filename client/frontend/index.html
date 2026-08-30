@@ -1,0 +1,585 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>NT-MUSIC</title>
+<link rel="stylesheet" href="/style.css?v=9000000">
+<script src="/app.js?v=9000000" defer></script>
+</head>
+
+<body>
+
+<div class="bg"></div>
+<canvas id="audioVisualizer"></canvas>
+<canvas id="audioVisualizer"></canvas>
+<div class="crt"></div>
+
+<div class="shell">
+
+<header class="topbar">
+
+  <div class="brandBlock">
+    <div class="pixelLogo">NT</div>
+
+    <div class="brandText">
+      <div class="brandName">NT-MUSIC</div>
+      <div class="brandSub">Group song rooms</div>
+    </div>
+  </div>
+
+  <div class="topRight">
+
+    <div id="connection" class="offline">
+      <i></i>
+      OFFLINE
+    </div>
+
+    <div class="topRoom">
+      <span>ROOM</span>
+      <strong id="roomCode">----</strong>
+    </div>
+
+  </div>
+
+</header>
+
+
+<main class="dashboard">
+
+
+<!-- LEFT -->
+<section class="mainArea">
+
+
+  <section class="playerPanel">
+
+    <div class="panelHeader">
+
+      <div>
+        <span class="sectionTag"> PLAYER</span>
+        <h1>NOW PLAYING</h1>
+      </div>
+
+      <div class="stateBox" id="trackState">
+        IDLE
+      </div>
+
+    </div>
+
+
+    <div class="playerBody">
+
+      <div class="albumFrame">
+
+        <div class="album" id="cover">
+          <span>♪</span>
+        </div>
+
+        <div class="albumCorner tl"></div>
+        <div class="albumCorner tr"></div>
+        <div class="albumCorner bl"></div>
+        <div class="albumCorner br"></div>
+
+      </div>
+
+
+      <div class="songInfo">
+
+        <div class="trackNumber">
+          TRACK <span id="trackNumber">01</span>
+        </div>
+
+        <h2 id="title">
+          Nothing playing
+        </h2>
+
+        <p id="subtitle">
+          Add a song to start the room.
+        </p>
+
+        <div class="songLine">
+          <span>NT-MUSIC</span>
+          <b>◆</b>
+          <span id="length">--:--</span>
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <div class="seekBlock">
+
+      <input
+        id="progress"
+        type="range"
+        min="0"
+        max="600"
+        step="0.1"
+        value="0"
+      >
+
+      <div class="timeLine">
+        <span id="current">0:00</span>
+        <span id="lengthBottom">--:--</span>
+      </div>
+
+    </div>
+
+
+    <div class="transport">
+
+      <button id="back" title="Back 10 seconds">
+        ◀◀
+      </button>
+
+      <button id="play" class="mainPlay">
+        ▶
+      </button>
+
+      <button id="forward" title="Forward 10 seconds">
+        ▶▶
+      </button>
+
+      <button id="stop" title="Stop">
+        ■
+      </button>
+
+    </div>
+
+
+    <div class="keyLegend">
+      <span>SPACE</span> PLAY / PAUSE
+      <span>← →</span> SEEK
+    </div>
+
+  </section>
+
+
+  <section class="queuePanel">
+
+    <div class="sectionHeader">
+
+      <div>
+        <span class="sectionTag">PLAYLIST</span>
+        <h2>QUEUE</h2>
+      </div>
+
+      <div class="counter">
+        <strong id="count">0</strong>
+        TRACKS
+      </div>
+
+    </div>
+
+    <div id="list">
+
+      <div class="emptyState">
+        <div class="bigPixel">♪</div>
+        <strong>QUEUE EMPTY</strong>
+        <span>Add a YouTube track from the terminal.</span>
+      </div>
+
+    </div>
+
+  </section>
+
+
+  <section class="historyPanel">
+
+    <div class="sectionHeader">
+
+      <div>
+        <span class="sectionTag"> ARCHIVE</span>
+        <h2>LISTENING HISTORY</h2>
+      </div>
+
+      <button id="historyRefresh" class="tinyButton">
+        REFRESH
+      </button>
+
+    </div>
+
+    <div id="historyList">
+
+      <div class="emptyState smallEmpty">
+        <strong>NO HISTORY</strong>
+        <span>. Played tracks will appear here.</span>
+      </div>
+
+    </div>
+
+  </section>
+
+
+</section>
+
+
+<!-- RIGHT -->
+<aside class="sideArea">
+
+
+  <section class="roomPanel">
+
+    <div class="sectionTag">
+      ROOM STATUS
+    </div>
+
+    <div class="roomName" id="roomName">
+      Not connected
+    </div>
+
+
+    <div class="roomCard">
+
+      <div>
+        <small>ROOM CODE</small>
+        <strong id="roomCodeLarge">----</strong>
+      </div>
+
+      <button id="copy">
+        COPY
+      </button>
+
+    </div>
+
+
+    <div class="roomStats">
+
+      <div class="stat">
+        <strong id="users">0</strong>
+        <span>LISTENERS</span>
+      </div>
+
+      <div class="stat roleStat">
+        <small>YOUR ROLE</small>
+        <strong id="role">WAITING</strong>
+      </div>
+
+    </div>
+
+  </section>
+
+
+  <section class="addPanel">
+
+    <div class="sectionTag">
+      MUSIC INPUT
+    </div>
+
+    <h2>ADD TRACK</h2>
+
+    <form id="songForm">
+
+      <label for="url">
+        YOUTUBE URL
+      </label>
+
+      <div class="urlInput">
+
+        <input
+          id="url"
+          type="url"
+          placeholder="youtube.com/watch?v=..."
+          required
+        >
+
+        <button type="submit">
+          ADD
+        </button>
+
+      </div>
+
+    </form>
+
+    <div class="pixelNote">
+      <span>!</span>
+      <p>Only YouTube links are accepted.</p>
+    </div>
+
+  </section>
+
+
+  <section class="audioPanel">
+
+    <div class="sectionHeader compactHeader">
+
+      <div>
+        <span class="sectionTag">AUDIO</span>
+        <h2>MY SOUND</h2>
+      </div>
+
+      <strong id="volumeValue">100%</strong>
+
+    </div>
+
+
+    <div class="volumeControl">
+
+      <span>LOW</span>
+
+      <input
+        id="volume"
+        type="range"
+        min="0"
+        max="100"
+        value="100"
+      >
+
+      <span>HIGH</span>
+
+    </div>
+
+
+    <button id="mute" class="soundButton">
+      MUTE MY AUDIO
+    </button>
+
+    <div class="tinyHint">
+      Personal volume
+    </div>
+
+  </section>
+
+
+  <section id="adminPanel" class="adminPanel hide">
+
+    <div class="adminHeader">
+
+      <div>
+        <span class="sectionTag">OWNER AREA</span>
+        <h2>ROOM CONTROL</h2>
+      </div>
+
+      <span class="roleBadge">
+        OWNER
+      </span>
+
+    </div>
+
+
+    <div class="globalBox">
+
+      <div class="globalTitle">
+
+        <div>
+          <small>ALL LISTENERS</small>
+          <strong>GLOBAL VOLUME</strong>
+        </div>
+
+        <b id="globalVolumeValue">100%</b>
+
+      </div>
+
+
+      <input
+        id="globalVolume"
+        type="range"
+        min="0"
+        max="100"
+        value="100"
+      >
+
+
+      <button id="globalMute" class="globalMute">
+        MUTE EVERYONE
+      </button>
+
+
+      <div class="globalHint">
+        Changes the music level for everyone in this room.
+      </div>
+
+    </div>
+
+
+    <div class="membersHeader">
+      <span>ROOM MEMBERS</span>
+      <i></i>
+    </div>
+
+
+    <div id="membersList" class="membersList">
+
+      <div class="emptyMembers">
+        WAITING FOR MEMBERS...
+      </div>
+
+    </div>
+
+  </section>
+
+
+  <section id="djPanel" class="djPanel hide">
+
+    <div class="adminHeader">
+
+      <div>
+        <span class="sectionTag">ACCESS LEVEL</span>
+        <h2>DJ MODE</h2>
+      </div>
+
+      <span class="roleBadge blue">
+        DJ
+      </span>
+
+    </div>
+
+    <div class="djMessage">
+      <strong>PLAYBACK ACCESS</strong>
+      <span>
+        You may control the room music.
+      </span>
+    </div>
+
+  </section>
+
+
+</aside>
+
+</main>
+
+
+<footer>
+
+  <span>NT-MUSIC</span>
+  <i></i>
+  Group song rooms
+  <i></i>
+  first version
+
+</footer>
+
+</div>
+
+
+<!-- WELCOME -->
+
+<div id="welcome" class="overlay">
+
+  <div class="welcomePanel">
+
+    <div class="welcomeTop">
+
+      <div class="pixelLogo large">
+        NT
+      </div>
+
+      <div class="welcomeCode">
+        NT-MUSIC
+        <span>BOOT SCREEN</span>
+      </div>
+
+    </div>
+
+
+    <div class="welcomeTitle">
+
+      <span class="sectionTag">
+        MUSIC TERMINAL
+      </span>
+
+      <h1>
+        LISTEN<br>
+        TOGETHER<span>.</span>
+      </h1>
+
+      <p>
+        Create a room for your friends or enter an existing room code.
+      </p>
+
+    </div>
+
+
+    <form id="welcomeForm">
+
+      <label for="name">
+        PLAYER NAME
+      </label>
+
+      <input
+        id="name"
+        maxlength="48"
+        placeholder="ENTER YOUR NAME"
+        required
+      >
+
+
+      <div class="modeSwitch">
+
+        <button
+          type="button"
+          id="createMode"
+          class="active"
+        >
+          CREATE
+        </button>
+
+        <button
+          type="button"
+          id="joinMode"
+        >
+          JOIN
+        </button>
+
+      </div>
+
+
+      <div id="joinBox" class="hide">
+
+        <label for="joinCode">
+          ROOM CODE
+        </label>
+
+        <input
+          id="joinCode"
+          maxlength="6"
+          placeholder="------"
+        >
+
+      </div>
+
+
+      <button
+        id="submit"
+        type="submit"
+        class="bootButton"
+      >
+        CREATE ROOM →
+      </button>
+
+    </form>
+
+
+    <button id="advanced" class="connectionLink">
+      CONNECTION SETTINGS
+    </button>
+
+
+    <div id="advancedBox" class="hide advancedBox">
+
+      <label>
+        WEBSOCKET SERVER
+      </label>
+
+      <input
+        id="server"
+        value="ws://127.0.0.1:8765/ws"
+      >
+
+      <small>
+        NT-MUSIC server address.
+      </small>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+<div id="toast"></div>
+
+</body>
+</html>
