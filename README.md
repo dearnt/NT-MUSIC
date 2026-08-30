@@ -1,4 +1,1 @@
-- [Python Certification](https://www.freecodecamp.org/certification/flynzip/responsive-web-design-v9)
-- [Responsive Web Design](https://www.freecodecamp.org/certification/flynzip/responsive-web-design-v9)
-- [JavaScript Certification](https://www.freecodecamp.org/certification/flynzip/javascript-v9)
-- [Foundational C# with Microsoft](https://www.freecodecamp.org/certification/flynzip/foundational-c-sharp-with-microsoft)
+
