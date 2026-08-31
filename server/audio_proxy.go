@@ -123,5 +123,14 @@ func audioProxyHandler(w http.ResponseWriter, r *http.Request) {
 	defer f.Close()
 
 	w.Header().Set("Content-Type", "audio/ogg")
-	http.ServeContent(w, r, "audio.webm", info.ModTime(), f)
+	w.Header().Set("Content-Length", fmt.Sprintf("%d", info.Size()))
+	w.Header().Set("Accept-Ranges", "none")
+	w.WriteHeader(http.StatusOK)
+
+	if _, err := f.Seek(0, 0); err != nil {
+		http.Error(w, "failed to seek audio file", http.StatusInternalServerError)
+		return
+	}
+
+	_, _ = f.WriteTo(w)
 }
