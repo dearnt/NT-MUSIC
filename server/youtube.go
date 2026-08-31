@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"log"
 	"os"
 	"os/exec"
@@ -91,8 +92,9 @@ func (e *YouTubeExtractor) Extract(ctx context.Context, videoURL string) (*YouTu
 		if errors.Is(requestCtx.Err(), context.DeadlineExceeded) {
 			return nil, ErrYouTubeTimeout
 		}
-		log.Printf("yt-dlp metadata error: %s", strings.TrimSpace(metadataStderr.String()))
-		return nil, ErrYouTubeExtractor
+		detail := strings.TrimSpace(metadataStderr.String())
+		log.Printf("yt-dlp metadata error: %s", detail)
+		return nil, fmt.Errorf("%w: %v: %s", ErrYouTubeExtractor, err, detail)
 	}
 
 	var data struct {
@@ -104,11 +106,11 @@ func (e *YouTubeExtractor) Extract(ctx context.Context, videoURL string) (*YouTu
 	}
 
 	if err := json.Unmarshal(output, &data); err != nil {
-		return nil, ErrYouTubeExtractor
+		return nil, fmt.Errorf("%w: metadata JSON parse failed: %v", ErrYouTubeExtractor, err)
 	}
 
 	if data.ID == "" || data.Title == "" {
-		return nil, ErrYouTubeExtractor
+		return nil, fmt.Errorf("%w: metadata incomplete (id=%q title=%q)", ErrYouTubeExtractor, data.ID, data.Title)
 	}
 
 	audioArgs := append(append([]string{}, commonArgs...),
@@ -127,13 +129,14 @@ func (e *YouTubeExtractor) Extract(ctx context.Context, videoURL string) (*YouTu
 		if errors.Is(requestCtx.Err(), context.DeadlineExceeded) {
 			return nil, ErrYouTubeTimeout
 		}
-		log.Printf("yt-dlp audio error: %s", strings.TrimSpace(audioStderr.String()))
-		return nil, ErrYouTubeExtractor
+		detail := strings.TrimSpace(audioStderr.String())
+		log.Printf("yt-dlp audio error: %s", detail)
+		return nil, fmt.Errorf("%w: audio extraction failed: %v: %s", ErrYouTubeExtractor, err, detail)
 	}
 
 	audioURL := strings.TrimSpace(strings.Split(string(audioOutput), "\n")[0])
 	if audioURL == "" {
-		return nil, ErrYouTubeExtractor
+		return nil, fmt.Errorf("%w: yt-dlp returned an empty audio URL", ErrYouTubeExtractor)
 	}
 
 	duration := int64(data.Duration)
