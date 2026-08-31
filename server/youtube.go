@@ -115,7 +115,7 @@ func (e *YouTubeExtractor) Extract(ctx context.Context, videoURL string) (*YouTu
 
 	audioArgs := append(append([]string{}, commonArgs...),
 		"-f",
-		"bestaudio",
+		"bestaudio/best",
 		"-g",
 		videoURL,
 	)
