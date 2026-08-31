@@ -18,7 +18,9 @@ func main() {
 
 	port := os.Getenv("PORT")
 	if port == "" {
-		port = "8765"
+		if port == "" {
+			port = "8765"
+		}
 	}
 	addr := ":" + port
 	log.Printf("NT-MUSIC server listening on %s", addr)
