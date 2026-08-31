@@ -35,7 +35,7 @@ func audioProxyHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Accept-Ranges", "none")
 
 	if r.Method == http.MethodHead {
-		w.Header().Set("Content-Type", "audio/webm")
+		w.Header().Set("Content-Type", "audio/ogg")
 		w.WriteHeader(http.StatusOK)
 		return
 	}
@@ -50,7 +50,8 @@ func audioProxyHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	defer os.RemoveAll(tempDir)
 
-	inputFile := filepath.Join(tempDir, "audio.webm")
+	inputFile := filepath.Join(tempDir, "source.webm")
+	outputFile := filepath.Join(tempDir, "audio.ogg")
 
 	ytdlp := exec.CommandContext(
 		ctx,
@@ -99,18 +100,28 @@ func audioProxyHandler(w http.ResponseWriter, r *http.Request) {
 		"-b:a",
 		"128k",
 		"-f",
-		"webm",
-		"pipe:1",
+		"ogg",
+		outputFile,
 	)
 
-	ffmpegOutput, err := ffmpeg.Output()
-	if err != nil {
+	if err := ffmpeg.Run(); err != nil {
 		http.Error(w, fmt.Sprintf("audio conversion failed: %v", err), http.StatusBadGateway)
 		return
 	}
 
-	w.Header().Set("Content-Type", "audio/webm")
-	w.Header().Set("Content-Length", fmt.Sprintf("%d", len(ffmpegOutput)))
-	w.WriteHeader(http.StatusOK)
-	_, _ = w.Write(ffmpegOutput)
+	info, err := os.Stat(outputFile)
+	if err != nil {
+		http.Error(w, "audio file was not created", http.StatusBadGateway)
+		return
+	}
+
+	f, err := os.Open(outputFile)
+	if err != nil {
+		http.Error(w, "failed to open audio file", http.StatusInternalServerError)
+		return
+	}
+	defer f.Close()
+
+	w.Header().Set("Content-Type", "audio/ogg")
+	http.ServeContent(w, r, "audio.webm", info.ModTime(), f)
 }
