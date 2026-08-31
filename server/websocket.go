@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"log"
 	"net/http"
 	"sync"
 
@@ -292,6 +293,8 @@ func (s *WebSocketServer) handleAddSong(client *Client, message ClientMessage) {
 		s.writeError(client, "url is required")
 		return
 	}
+
+	log.Printf("ADD SONG URL RECEIVED: %q", message.Data.URL)
 
 	songService := NewSongService()
 
