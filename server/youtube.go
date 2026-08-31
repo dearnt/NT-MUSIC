@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"errors"
@@ -82,13 +83,15 @@ func (e *YouTubeExtractor) Extract(ctx context.Context, videoURL string) (*YouTu
 	)
 
 	metadataCmd := e.command(requestCtx, metadataArgs...)
+	var metadataStderr bytes.Buffer
+	metadataCmd.Stderr = &metadataStderr
 
-	output, err := metadataCmd.CombinedOutput()
+	output, err := metadataCmd.Output()
 	if err != nil {
 		if errors.Is(requestCtx.Err(), context.DeadlineExceeded) {
 			return nil, ErrYouTubeTimeout
 		}
-		log.Printf("yt-dlp metadata error: %s", strings.TrimSpace(string(output)))
+		log.Printf("yt-dlp metadata error: %s", strings.TrimSpace(metadataStderr.String()))
 		return nil, ErrYouTubeExtractor
 	}
 
@@ -116,13 +119,15 @@ func (e *YouTubeExtractor) Extract(ctx context.Context, videoURL string) (*YouTu
 	)
 
 	audioCmd := e.command(requestCtx, audioArgs...)
+	var audioStderr bytes.Buffer
+	audioCmd.Stderr = &audioStderr
 
-	audioOutput, err := audioCmd.CombinedOutput()
+	audioOutput, err := audioCmd.Output()
 	if err != nil {
 		if errors.Is(requestCtx.Err(), context.DeadlineExceeded) {
 			return nil, ErrYouTubeTimeout
 		}
-		log.Printf("yt-dlp audio error: %s", strings.TrimSpace(string(audioOutput)))
+		log.Printf("yt-dlp audio error: %s", strings.TrimSpace(audioStderr.String()))
 		return nil, ErrYouTubeExtractor
 	}
 
