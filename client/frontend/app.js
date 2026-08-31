@@ -93,7 +93,7 @@ const state = {
   mode:"create",
   userId:(crypto.randomUUID ? crypto.randomUUID() : Date.now()+"-"+Math.random()),
   name:localStorage.getItem("ntmusic-name") || "",
-  server:`ws://${location.hostname}:8765/ws`,
+  server:`${location.protocol==="https:"?"wss:":"ws:"}//${location.host}/ws`,
   room:"",
   owner:"",
   users:0,
@@ -206,39 +206,7 @@ function handle(m){
         const id=songId(song);
         if(id&&!state.queue.some(x=>songId(x)===id))state.queue.push(song);
         else if(!id)state.queue.push(song);
-
-        if(id===String(state.playback.song_id)&&songUrl(song)){
-          const audioSource = `http://${location.hostname}:8765/audio?url=` + encodeURIComponent(songUrl(song));
-
-          if(player.src !== audioSource){
-            player.src = audioSource;
-            player.currentTime = state.playback.position || 0;
-            player.load();
-          }
-
-          if(state.playback.playing){
-            player.play().catch(e => {
-              console.error("NT-MUSIC AUDIO PLAY ERROR:", e);
-            });
-          }
-        }
-
         render();
-
-        if(id===String(state.playback.song_id)&&state.playback.playing){
-          const currentSong=state.queue.find(x=>songId(x)===String(state.playback.song_id));
-
-          if(currentSong&&songUrl(currentSong)){
-            const src=`http://${location.hostname}:8765/audio?url=`+encodeURIComponent(songUrl(currentSong));
-
-            if(player.src!==src){
-              player.src=src;
-              player.load();
-            }
-
-            player.play().catch(()=>{});
-          }
-        }
       }
       break;
 
@@ -276,7 +244,7 @@ function handle(m){
 
         if (current && songUrl(current)) {
           const audioSource =
-            `http://${location.hostname}:8765/audio?url=` +
+            `${location.origin}/audio?url=` +
             encodeURIComponent(songUrl(current));
 
           const targetPosition = Math.max(
@@ -284,13 +252,16 @@ function handle(m){
             Number(state.playback.position) || 0
           );
 
-          if (player.src !== audioSource) {
+          const currentAudioSongId = player.dataset.ntMusicSongId || "";
+
+          if (currentAudioSongId !== state.playback.song_id) {
             player.pause();
+            player.dataset.ntMusicSongId = state.playback.song_id;
             player.src = audioSource;
             player.load();
 
             player.addEventListener("loadedmetadata", () => {
-              if (player.src !== audioSource) return;
+              if (player.dataset.ntMusicSongId !== state.playback.song_id) return;
 
               try {
                 player.currentTime = targetPosition;
@@ -611,7 +582,7 @@ el.play.addEventListener("click",()=>{
   const current=state.queue.find(s=>songId(s)===String(state.playback.song_id));
 
   if(current&&songUrl(current)){
-    const audioSource = `http://${location.hostname}:8765/audio?url=` + encodeURIComponent(songUrl(current));
+    const audioSource = `${location.origin}/audio?url=` + encodeURIComponent(songUrl(current));
 
     if(player.src !== audioSource){
       player.src = audioSource;
