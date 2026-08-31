@@ -4,6 +4,8 @@ NT-MUSIC is a small shared music room application.
 
 The idea is simple: people join the same room and listen to music together. The room owner controls playback, while DJs can also control playback and add songs. Songs are added using YouTube links.
 
+![NT-MUSIC Interface](o.png)
+
 ## How it works
 
 - Create a room and share the room code.
