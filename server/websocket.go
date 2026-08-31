@@ -307,7 +307,7 @@ func (s *WebSocketServer) handleAddSong(client *Client, message ClientMessage) {
 	metadataService := NewSongMetadataService(nil)
 
 	if err := metadataService.Enrich(context.Background(), song); err != nil {
-		s.writeError(client, "failed to extract song metadata")
+		s.writeError(client, "failed to extract song metadata: "+err.Error())
 		return
 	}
 
