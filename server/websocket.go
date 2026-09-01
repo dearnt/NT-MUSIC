@@ -82,8 +82,11 @@ func (s *WebSocketServer) handler(w http.ResponseWriter, r *http.Request) {
 		var message ClientMessage
 
 		if err := conn.ReadJSON(&message); err != nil {
+			log.Printf("WEBSOCKET READ ERROR: %v", err)
 			return
 		}
+
+		log.Printf("WEBSOCKET MESSAGE: type=%q data=%+v", message.Type, message.Data)
 
 		switch message.Type {
 		case "create_room":
