@@ -106,7 +106,8 @@ const state = {
   globalMuted:false,
   localMuted:false,
   playback:{song_id:"",playing:false,position:0,updated:0},
-  received:Date.now()
+  received:Date.now(),
+  heartbeat:null
 };
 
 el.name.value=state.name;
@@ -160,6 +161,10 @@ function connect(){
   });
 
   state.ws.addEventListener("error",()=>toast("WebSocket connection error."));
+  clearInterval(state.heartbeat);
+  state.heartbeat=setInterval(()=>{
+    if(state.ws&&state.ws.readyState===WebSocket.OPEN)send("heartbeat");
+  },300000);
 }
 
 function send(type,data={}){

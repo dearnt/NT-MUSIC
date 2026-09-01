@@ -120,6 +120,8 @@ func (s *WebSocketServer) handler(w http.ResponseWriter, r *http.Request) {
 			s.handleSetGlobalMute(client, message)
 		case "sync_state":
 			s.handleSyncState(client)
+		case "heartbeat":
+			_ = client.send(Message{Type: "heartbeat"})
 		default:
 			s.writeError(client, "unknown message type")
 		}
