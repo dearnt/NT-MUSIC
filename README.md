@@ -106,3 +106,7 @@ NT-MUSIC/
 ├── Dockerfile
 ├── README.md
 └── .gitignore
+
+## license
+
+ISC
