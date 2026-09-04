@@ -585,20 +585,33 @@ el.play.addEventListener("click",()=>{
   }
 
   const current=state.queue.find(s=>songId(s)===String(state.playback.song_id));
+  if(!current||!songUrl(current))return;
 
-  if(current&&songUrl(current)){
-    const audioSource = `${location.origin}/audio?url=` + encodeURIComponent(songUrl(current));
+  const audioSource = `${location.origin}/audio?url=` + encodeURIComponent(songUrl(current));
+  const targetPosition = Math.max(0, Number(state.playback.position) || 0);
 
-    if(player.src !== audioSource){
-      player.src = audioSource;
-      player.currentTime = state.playback.position || 0;
-      player.load();
-    }
+  const startPlayback = ()=>{
+    try {
+      player.currentTime = targetPosition;
+    } catch {}
 
     player.play().catch(e=>{
       console.error("NT-MUSIC AUDIO PLAY ERROR:", e);
       toast("AUDIO ERROR: " + e.name + " - " + e.message);
     });
+  };
+
+  if(player.src !== audioSource){
+    player.pause();
+    player.dataset.ntMusicSongId = String(state.playback.song_id);
+    player.src = audioSource;
+    player.addEventListener("loadedmetadata", startPlayback, {once:true});
+    player.load();
+  }else if(player.readyState >= 1){
+    startPlayback();
+  }else{
+    player.addEventListener("loadedmetadata", startPlayback, {once:true});
+    player.load();
   }
 
   send("play");

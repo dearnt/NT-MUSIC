@@ -1,0 +1,6 @@
+# Written by `rollout`. Anything listed here is not uploaded.
+.git
+.env
+.env.*
+*.log
+.DS_Store
