@@ -108,7 +108,7 @@ NT-MUSIC/
 └── .gitignore
 
 ```
-#license
+# license
 
 ISC
 
